@@ -1,10 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
 
-// create a type
+// create a type for our pokemon data
+type Pokemon = {
+  results: {
+    name: string;
+    url: string;
+  }[]; //make sure typescript know that your results is an array type
+};
 
 export default function App() {
-  const [pokemon, setGetPokemon] = useState([]);
+  const [pokemon, setGetPokemon] = useState<Pokemon["results"]>([]);
 
   const pokeURL = "https://pokeapi.co/api/v2/pokemon/";
 
@@ -16,9 +22,10 @@ export default function App() {
       if (!response.ok) {
         throw new Error(`Response status: ${response.status}`);
       }
-      const data = await response.json();
+      const data: Pokemon = await response.json();
+
       // Extracting names and URLs from the results
-      const namesAndUrl = data.results.map((result: any) => ({
+      const namesAndUrl = data.results.map((result) => ({
         name: result.name,
         url: result.url,
       }));
@@ -28,7 +35,10 @@ export default function App() {
       console.error("Error fetching Pokemon:", error);
     }
   };
-  fetchPokemon();
+
+  useEffect(() => {
+    fetchPokemon();
+  }, []);
 
   return (
     <div className="App">
@@ -36,8 +46,8 @@ export default function App() {
         return (
           <div key={index}>
             {/* wrong way to do it */}
-            <h1>{pokemon.name}</h1>
-            <h1>{pokemon.url}</h1>
+            <h1>{p.name}</h1>
+            <h1>{p.url}</h1>
             {/*Property 'name' does not exist on type 'never[]'. 
             because we have not declared a type, we get this error from typescript*/}
           </div>
